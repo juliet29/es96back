@@ -1,3 +1,18 @@
+"""app.py is the brain of the API, a lightweight Flask application that takes advantages of the following:
+
+Flask: python framework for creating web applications: https://flask.palletsprojects.com/en/1.1.x/
+
+MongoDB: database that handles unstructured (non-SQL like) data: https://www.mongodb.com/ 
+    Atlas: a MongoDB cloud service, that allows the database to be hosted online rather than locally: https://api.mongodb.com/python/current/
+
+PyMongo: library that allows Python projects to connect to mongodb: https://api.mongodb.com/python/current/
+
+Postman: (not actually in this program) used for testing API links: https://www.postman.com/
+
+Heroku: allow this to project to be accessed as from any computer by hosting it online @ https://es96app.herokuapp.com/: https://www.heroku.com/what
+
+"""
+
 from flask import Flask, request, jsonify
 from flask_pymongo import pymongo
 import pprint
