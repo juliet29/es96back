@@ -1,38 +1,75 @@
 from flask import Flask, request, jsonify
 from flask_pymongo import pymongo
 import pprint
+import os 
+import glob                      
+import json                       
+import datetime                       
+from bson.objectid import ObjectId
 
 # create an instance of the Flask class for a single module
 app = Flask(__name__) 
 
-# handle things for the database yo
+# extend JSONencoder class to convert all responses to JSON string to allow cross-platform data interpretation 
+class JSONEncoder(json.JSONEncoder):                           
+    ''' extend json-encoder class'''
+    def default(self, o):                               
+        if isinstance(o, ObjectId):
+            return str(o)                               
+        if isinstance(o, datetime.datetime):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
+
+# set app to use this extended class 
+app.json_encoder = JSONEncoder
+
+# connect to online database (Atlas) using PyMongo client feature 
 CONNECTION_STRING = "mongodb+srv://juliet:juliet1234@es96-avo-cluster-xo415.mongodb.net/test?retryWrites=true&w=majority"
 client = pymongo.MongoClient(CONNECTION_STRING)
 
-# set the current database to be the airbnb one for now 
-db = client.get_database('sample_airbnb')
-collection = pymongo.collection.Collection(db, 'listingsAndReviews')
-mycol = pymongo.collection.Collection(db, 'listingsAndReviews')
 
 # define what the home page looks like 
 @app.route('/')
-def flask_mongodb_atlas():
-    return "flask mongodb atlas! hi"
+def home():
+    return "ES96a Avocado Database"
 
-#test to insert data to the data base
-@app.route("/test")
+@app.route('/test', methods=['GET', 'POST', 'DELETE', 'PATCH'])
 def test():
-    db.db.collection.insert_one({"name": "John"})
-    mycol.insert_one({'x': 1})
-    hello = db.listingsAndReviews.find({})
-    # pprint(hello)
-    # for k in hello:
-    #     pprint(k)
-    # return jsonify(books= [b.serialize for b in hello])
+    # connect to a database with PyMongo Client 
+    db = client.testdb
+    # retrive the collection within the database we will be working with 
+    col = db.testcol
 
-    return "Connected to the data base!"
+    # return items in a collection 
+    if request.method == 'GET':
+        query = request.args
+        # if no query is given, then return everything in the collection 
+        if not query:
+            # appending all items in the Cursor to a list, not sure if this is the best way
+            all_items = [] 
+            for items in col.find():
+                all_items.append(items)
+            return jsonify(all_items), 200
+        # otherwise return the specific item that was queried (only one though!)
+        else:
+            data = col.find_one(query)
+            return jsonify(data), 200
+
+
+    # make a new avocado
+    # get the data from the request! 
+    data = request.get_json() 
+    if request.method == 'POST':
+        # if valid data exists in the request, add to the database 
+        if data.get('name', None) is not None and data.get('birthplace', 
+            None) is not None:
+            col.insert_one(data)
+            return jsonify({'ok': True, 'message': 'New Avocado created   successfully!'}), 200
+
+        else:
+            return jsonify({'ok': False, 'message': 'Bad request parameters! Need a "name" and a "birthplace"'}), 400
+
     
-
 if __name__ == '__main__':
     app.run(port=8000)
 
