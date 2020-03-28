@@ -1,4 +1,4 @@
-# freeze files 
+# freeze files for hosting statically
 from flask_frozen import Freezer
 from app import app
 

@@ -33,7 +33,7 @@ client = pymongo.MongoClient(CONNECTION_STRING)
 def home():
     return "ES96a Avocado Database"
 
-@app.route('/test', methods=['GET', 'POST', 'DELETE', 'PATCH'])
+@app.route('/test', methods=['GET', 'POST'])
 def test():
     # connect to a database with PyMongo Client 
     db = client.testdb
@@ -71,5 +71,6 @@ def test():
 
     
 if __name__ == '__main__':
-    app.run(port=8000)
+    app.run()
 
+# port=8000
