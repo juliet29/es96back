@@ -1,0 +1,21 @@
+{
+	"_id": "1",
+	"time": "2020-04-02:08:10",
+	"username": "Jamie AvoScanner",
+	"device": "spectrometer_1",
+	"tags": [
+		{
+			"tag_1": "austin",
+			"tag_2": "HEB",
+			"tag_3": "california"
+		}
+	],
+	"data": [
+		{
+			"freq1": "80",
+			"freq2": "70",
+			"freq3": "60",
+			"freq4": "50"
+		}
+	]
+}

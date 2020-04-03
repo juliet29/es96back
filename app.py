@@ -48,6 +48,69 @@ client = pymongo.MongoClient(CONNECTION_STRING)
 def home():
     return "ES96a Avocado Database"
 
+# send some data about an avocado with the format in sample_data.json
+@app.route('/send', methods=['POST'])
+def post():
+    # connect to a database with PyMongo Client 
+    db = client.testdb
+    # retrive the collection within the database we will be working with 
+    col = db.testcol
+
+    data = request.get_json() 
+    if request.method == 'POST':
+        # if valid data exists in the request, add to the database 
+        if data.get('username', None) is not None and data.get('data', 
+            None) is not None:
+            col.insert_one(data)
+            return jsonify({'ok': True, 'message': 'New Avocado created   successfully!'}), 200
+
+        else:
+            return jsonify({'ok': False, 'message': 'Bad request parameters! Need a "username" and some "data"'}), 400
+
+# get some data about an avocado based on username 
+@app.route('/userdata', methods=['GET'])
+def userdata():
+    # connect to a database with PyMongo Client 
+    db = client.testdb
+    # retrive the collection within the database we will be working with 
+    col = db.testcol
+
+    # return items in a collection 
+    if request.method == 'GET':
+        query = request.args
+        # if no query is given, then return everything in the collection 
+        if not query:
+            # appending all items in the Cursor to a list, not sure if this is the best way
+            all_items = [] 
+            for items in col.find():
+                all_items.append(items)
+            return jsonify(all_items), 200
+        # otherwise return the specific item that was queried (only one though!)
+        else:
+            data = col.find_one(query)
+            return jsonify(data), 200
+
+
+# get some data, run some code on it, and put it back in the database 
+@app.route('/transform', methods=['GET', 'POST'])
+def transform():
+    # get data based on the user this will be in the form of some json data 
+    app.logger.info('just a log')
+    datastore = userdata()
+    app.logger.info('the user is %s', datastore)
+    # currently datastore looks like this: the user is (<Response 689 bytes [200 OK]>, 200)
+    # likely because it has been turned into a string..
+    # need to unwrap this, and then call a simple function on it, and then send it
+    # print(datastore)
+    return "transformed!"
+
+
+
+
+
+
+
+################### some initial stuff for testing ##################
 @app.route('/test', methods=['GET', 'POST'])
 def test():
     # connect to a database with PyMongo Client 
