@@ -105,6 +105,29 @@ def userdata():
             return all_items
             # return jsonify(data), 200
 
+# get some data, run some code on it, and put it back in the database 
+@app.route('/transform', methods=['GET', 'POST'])
+def transform():
+    # get data based on the user this will be in the form of some json data 
+    app.logger.info('just a log')
+    datastore = userdata() # list of all our data
+
+    # this is how we speak to the console (in soothing tones, not with print) lol 
+    # app.logger.info('the user is %s', datastore)
+
+    actual_data = [];
+    for item in datastore:
+        if 'data' in item:
+            #app.logger.info('there is some data!')
+            actual_data.append(item.get('data'))
+    
+    app.logger.info('there is some data! %s', actual_data)
+
+
+    # return "transformed!"
+    return render_template('freqdata.html', actual_data = actual_data)
+
+
 
 # returns the actual data 
 @app.route('/justdata', methods=['GET'])  
@@ -129,32 +152,15 @@ def justdata():
             return jsonify(all_items), 200
         # otherwise return the specific item that was queried (only one though!)
         else:
-            data = col.find_one(query)
-            return all_items
-            return jsonify(data), 200
+            all_items = [] 
+            for items in col.find(query):
+                all_items.append(items)
+                # now we have a list of all the items (this is a list of dictionaries), and can just return that ... (not returning a response, so cannot print)
+            #return render_template('userdata.html', all_items = all_items)
+            #return all_items
+            return jsonify(all_items), 200
+        # otherwise return the specific item that was queried (only one though!)
 
-
-# get some data, run some code on it, and put it back in the database 
-@app.route('/transform', methods=['GET', 'POST'])
-def transform():
-    # get data based on the user this will be in the form of some json data 
-    app.logger.info('just a log')
-    datastore = userdata() # list of all our data
-
-    # this is how we speak to the console (in soothing tones, not with print) lol 
-    # app.logger.info('the user is %s', datastore)
-
-    actual_data = [];
-    for item in datastore:
-        if 'data' in item:
-            #app.logger.info('there is some data!')
-            actual_data.append(item.get('data'))
-    
-    app.logger.info('there is some data! %s', actual_data)
-
-
-    # return "transformed!"
-    return render_template('freqdata.html', actual_data = actual_data)
 
 
 ################### OG route ##################
@@ -178,7 +184,8 @@ def test():
        
         else:
              # otherwise return the specific item that was queried (only one though!)
-            data = col.find_one(query)
+
+            data = col.find_one()
             return jsonify(data), 200
 
 
