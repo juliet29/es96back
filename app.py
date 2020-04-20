@@ -101,9 +101,37 @@ def userdata():
             return all_items # THIS IS NOT A VALID RESPONSE LMAO, ONLY FOR INTERNAL USE, GOING TO /USERDATA WILL GIVE AN ERROR!
         # otherwise return the specific item that was queried (only one though!)
         else:
-            data = col.find_one(query)
+            data = col. find_one(query)
             return all_items
             # return jsonify(data), 200
+
+
+# returns the actual data 
+@app.route('/justdata', methods=['GET'])  
+def justdata():
+    # connect to a database with PyMongo Client 
+    db = client.testdb
+    # retrive the collection within the database we will be working with 
+    col = db.testcol
+
+    # return items in a collection 
+    if request.method == 'GET':
+        query = request.args
+        # if no query is given, then return everything in the collection 
+        if not query:
+            # appending all items in the Cursor to a list, not sure if this is the best way
+            all_items = [] 
+            for items in col.find():
+                all_items.append(items)
+                # now we have a list of all the items (this is a list of dictionaries), and can just return that ... (not returning a response, so cannot print)
+            #return render_template('userdata.html', all_items = all_items)
+            #return all_items
+            return jsonify(all_items), 200
+        # otherwise return the specific item that was queried (only one though!)
+        else:
+            data = col.find_one(query)
+            return all_items
+            return jsonify(data), 200
 
 
 # get some data, run some code on it, and put it back in the database 
