@@ -1,4 +1,15 @@
-"""app.py is the brain of the API, a lightweight Flask application that takes advantages of the following:
+"""
+To execute locally:
+1.) In command line type "source venv/bin/activate" to turn on the virtual environment 
+2.)To enable debugging (i.e. get more helpful error messages, and things print to command line):
+export FLASK_APP=app
+export FLASK_ENV=development
+flask run
+3.) If no need debugging, can just type "python app.py"
+
+
+
+app.py is the brain of the API, a lightweight Flask application that takes advantages of the following:
 
 Flask: python framework for creating web applications: https://flask.palletsprojects.com/en/1.1.x/
 
@@ -21,6 +32,7 @@ import glob
 import json                       
 import datetime                       
 from bson.objectid import ObjectId
+from flask import render_template
 
 # create an instance of the Flask class for a single module
 app = Flask(__name__) 
@@ -67,8 +79,8 @@ def post():
         else:
             return jsonify({'ok': False, 'message': 'Bad request parameters! Need a "username" and some "data"'}), 400
 
-# get some data about an avocado based on username 
-@app.route('/userdata', methods=['GET'])
+# get some data about an avocado for use within this script only
+@app.route('/userdata', methods=['GET'])  # this might not be nessecary tbh 
 def userdata():
     # connect to a database with PyMongo Client 
     db = client.testdb
@@ -84,11 +96,14 @@ def userdata():
             all_items = [] 
             for items in col.find():
                 all_items.append(items)
-            return jsonify(all_items), 200
+                # now we have a list of all the items (this is a list of dictionaries), and can just return that ... (not returning a response, so cannot print)
+            #return render_template('userdata.html', all_items = all_items)
+            return all_items # THIS IS NOT A VALID RESPONSE LMAO, ONLY FOR INTERNAL USE, GOING TO /USERDATA WILL GIVE AN ERROR!
         # otherwise return the specific item that was queried (only one though!)
         else:
             data = col.find_one(query)
-            return jsonify(data), 200
+            return all_items
+            # return jsonify(data), 200
 
 
 # get some data, run some code on it, and put it back in the database 
@@ -96,21 +111,25 @@ def userdata():
 def transform():
     # get data based on the user this will be in the form of some json data 
     app.logger.info('just a log')
-    datastore = userdata()
-    app.logger.info('the user is %s', datastore)
-    # currently datastore looks like this: the user is (<Response 689 bytes [200 OK]>, 200)
-    # likely because it has been turned into a string..
-    # need to unwrap this, and then call a simple function on it, and then send it
-    # print(datastore)
-    return "transformed!"
+    datastore = userdata() # list of all our data
+
+    # this is how we speak to the console (in soothing tones, not with print) lol 
+    # app.logger.info('the user is %s', datastore)
+
+    actual_data = [];
+    for item in datastore:
+        if 'data' in item:
+            #app.logger.info('there is some data!')
+            actual_data.append(item.get('data'))
+    
+    app.logger.info('there is some data! %s', actual_data)
 
 
+    # return "transformed!"
+    return render_template('freqdata.html', actual_data = actual_data)
 
 
-
-
-
-################### some initial stuff for testing ##################
+################### OG route ##################
 @app.route('/test', methods=['GET', 'POST'])
 def test():
     # connect to a database with PyMongo Client 
@@ -127,9 +146,10 @@ def test():
             all_items = [] 
             for items in col.find():
                 all_items.append(items)
-            return jsonify(all_items), 200
-        # otherwise return the specific item that was queried (only one though!)
+            return render_template('testdata.html', all_items = all_items)
+       
         else:
+             # otherwise return the specific item that was queried (only one though!)
             data = col.find_one(query)
             return jsonify(data), 200
 

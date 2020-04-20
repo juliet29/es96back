@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Test Data</title>
+	</head>
+	<body>
+		<h1>All the Data in the Database, In a Nice List</h1>
+		<ul id="userDataList">
+			{% for item in all_items %}
+			<li>{{ item}}</li>
+			{% endfor %}
+		</ul>
+	</body>
+</html>
