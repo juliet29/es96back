@@ -96,40 +96,38 @@ def userdata():
             all_items = [] 
             for items in col.find():
                 all_items.append(items)
-                # now we have a list of all the items (this is a list of dictionaries), and can just return that ... (not returning a response, so cannot print)
-            #return render_template('userdata.html', all_items = all_items)
-            return all_items # THIS IS NOT A VALID RESPONSE LMAO, ONLY FOR INTERNAL USE, GOING TO /USERDATA WILL GIVE AN ERROR!
+            return jsonify(all_items), 200, all_items
+
         # otherwise return the specific item that was queried (only one though!)
         else:
             data = col. find_one(query)
-            return all_items
+            return data, jsonify(data), 200
             # return jsonify(data), 200
 
-# get some data, run some code on it, and put it back in the database 
+# get some data, run some code on it, (TODO: and put it back in the database )
 @app.route('/transform', methods=['GET', 'POST'])
 def transform():
     # get data based on the user this will be in the form of some json data 
     app.logger.info('just a log')
     datastore = userdata() # list of all our data
 
-    # this is how we speak to the console (in soothing tones, not with print) lol 
-    # app.logger.info('the user is %s', datastore)
+    # this is how we speak to the console (in soothing tones, not with print) 
+    app.logger.info('the user is %s', datastore)
 
     actual_data = [];
-    for item in datastore:
+    for item in datastore[2]:
         if 'data' in item:
             #app.logger.info('there is some data!')
             actual_data.append(item.get('data'))
     
     app.logger.info('there is some data! %s', actual_data)
 
-
-    # return "transformed!"
+    # return an html template of this data 
     return render_template('freqdata.html', actual_data = actual_data)
 
 
 
-# returns the actual data 
+# returns the actual data in JSON format 
 @app.route('/justdata', methods=['GET'])  
 def justdata():
     # connect to a database with PyMongo Client 
@@ -194,13 +192,13 @@ def test():
     data = request.get_json() 
     if request.method == 'POST':
         # if valid data exists in the request, add to the database 
-        if data.get('name', None) is not None and data.get('birthplace', 
+        if data.get('data', None) is not None and data.get('time', 
             None) is not None:
             col.insert_one(data)
             return jsonify({'ok': True, 'message': 'New Avocado created   successfully!'}), 200
 
         else:
-            return jsonify({'ok': False, 'message': 'Bad request parameters! Need a "name" and a "birthplace"'}), 400
+            return jsonify({'ok': False, 'message': 'Bad request parameters! Need "data" and a "time"'}), 400
 
     
 if __name__ == '__main__':

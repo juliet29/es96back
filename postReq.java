@@ -6,6 +6,5 @@ Request request = new Request.Builder()
   .url("https://es96app.herokuapp.com/test")
   .method("POST", body)
   .addHeader("Content-Type", "application/json")
-  .addHeader("Content-Type", "text/plain")
   .build();
 Response response = client.newCall(request).execute();
