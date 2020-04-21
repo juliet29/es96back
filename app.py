@@ -167,9 +167,9 @@ def test():
     # connect to a database with PyMongo Client 
     db = client.testdb
     # retrive the collection within the database we will be working with 
-    col = db.testcol
+    col = db.es96_april
 
-    # return items in a collection 
+    # return items in a collection in a pretty format
     if request.method == 'GET':
         query = request.args
         # if no query is given, then return everything in the collection 
