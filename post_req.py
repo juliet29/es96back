@@ -10,7 +10,7 @@ url = "https://es96app.herokuapp.com/test"
 # information to send in json format --> more on this here: https://requests.readthedocs.io/en/master/user/quickstart/
 
 payload = {
-    "_id": "18", # can not have the same id as another avocado already in the database. if not sure, just don't include and mongodb will autogenerate an id that can be modified later;
+    "_id": "128", # can not have the same id as another avocado already in the database. if not sure, just don't include and mongodb will autogenerate an id that can be modified later;
     "name" : "newname12", # nessecary param 
     "birthplace" : "atx4", # nessecary param 
     "time": "2020-04-02:23:27",

@@ -133,7 +133,7 @@ def justdata():
     # connect to a database with PyMongo Client 
     db = client.testdb
     # retrive the collection within the database we will be working with 
-    col = db.testcol
+    col = db.es96_april
 
     # return items in a collection 
     if request.method == 'GET':
@@ -144,25 +144,20 @@ def justdata():
             all_items = [] 
             for items in col.find():
                 all_items.append(items)
-                # now we have a list of all the items (this is a list of dictionaries), and can just return that ... (not returning a response, so cannot print)
-            #return render_template('userdata.html', all_items = all_items)
-            #return all_items
             return jsonify(all_items), 200
-        # otherwise return the specific item that was queried (only one though!)
         else:
             all_items = [] 
             for items in col.find(query):
+                # find all items that match the query 
                 all_items.append(items)
-                # now we have a list of all the items (this is a list of dictionaries), and can just return that ... (not returning a response, so cannot print)
-            #return render_template('userdata.html', all_items = all_items)
-            #return all_items
+
             return jsonify(all_items), 200
         # otherwise return the specific item that was queried (only one though!)
 
 
 
 ################### OG route ##################
-@app.route('/test', methods=['GET', 'POST'])
+@app.route('/test', methods=['GET', 'POST', 'PATCH'])
 def test():
     # connect to a database with PyMongo Client 
     db = client.testdb
@@ -200,6 +195,55 @@ def test():
         else:
             return jsonify({'ok': False, 'message': 'Bad request parameters! Need "data" and a "time"'}), 400
 
+
+    # patch request
+    data = request.get_json() 
+    if request.method == 'PATCH':
+        # find the one document to patch 
+        query = request.args
+
+        # update it 
+        # set new values to be updates
+        #new_values = {$set: data}
+        new_values = {$set: {'session_id': 'test3'}}
+        try:
+            col.update_one(query, new_values)
+        except NameError as err:
+            return jsonify({"error w/ request"})
+
+        path_item = []
+        for x in col.find():
+            patch_item.append(x)
+        return jsonify({'ok': True, 'message': 'New Avocado patched successfully!'}), 200
+
+
+        # iterate through the query items and update
+
+
+
+
+
+            # # find this one item in the db
+        # try:
+        #     find_result = col.find_one(query)
+        # except NameError as err:
+        #     find_result = None
+        #     print("item not found in this collection")
+        # if find_result != None and type(find_result) == dict:
+        #     print ("found doc:", find_result)
+        
+
+
+
+
+        # # if valid data exists in the request, add to the database 
+        # if data.get('data', None) is not None and data.get('time', 
+        #     None) is not None:
+        #     col.insert_one(data)
+        #     return jsonify({'ok': True, 'message': 'New Avocado patched  successfully!'}), 200
+
+        # else:
+        #     return jsonify({'ok': False, 'message': 'Bad request parameters! Need "data" and a "time"'}), 400
     
 if __name__ == '__main__':
     app.run()
