@@ -176,9 +176,10 @@ def test():
             return render_template('testdata.html', all_items = all_items)
        
         else:
-             # otherwise return the specific item that was queried (only one though!)
-
-            data = col.find_one()
+            all_items = [] 
+            for items in col.find(query):
+                # find all items that match the query 
+                all_items.append(items)
             return jsonify(data), 200
 
 
